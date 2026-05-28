@@ -2,17 +2,29 @@
 
 import { useEffect } from 'react'
 import { useSudokuGame } from '@/hooks/useSudokuGame'
-import { HomeScreen } from './HomeScreen'
+import { UserSelectScreen } from './UserSelectScreen'
 import { DifficultyScreen } from './DifficultyScreen'
 import { SudokuBoard } from './SudokuBoard'
 import { NumPad } from './NumPad'
 import { GameControls } from './GameControls'
 import { GameClearBanner } from './GameClearBanner'
+import { StatsScreen } from './StatsScreen'
 
 export function SudokuGame() {
-  const { state, startGame, selectDifficulty, selectCell, inputNumber, eraseCell, useHint, newGame } =
-    useSudokuGame()
-  const { phase, board, solution, selectedCell, difficulty } = state
+  const {
+    state,
+    selectUser,
+    createUser,
+    selectDifficulty,
+    selectCell,
+    inputNumber,
+    eraseCell,
+    useHint,
+    abandonGame,
+    showStats,
+    newGame,
+  } = useSudokuGame()
+  const { phase, board, solution, selectedCell, difficulty, currentUser, startedAt } = state
 
   useEffect(() => {
     if (phase !== 'playing') return
@@ -30,11 +42,11 @@ export function SudokuGame() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [phase, inputNumber, eraseCell])
 
-  if (phase === 'home') {
+  if (phase === 'user-select') {
     return (
       <main className="min-h-screen flex items-center justify-center p-6">
         <div className="w-full max-w-sm">
-          <HomeScreen onStart={startGame} />
+          <UserSelectScreen onSelectUser={selectUser} onCreateUser={createUser} />
         </div>
       </main>
     )
@@ -50,18 +62,30 @@ export function SudokuGame() {
     )
   }
 
+  if (phase === 'stats' && currentUser) {
+    return (
+      <main className="min-h-screen flex items-center justify-center p-6">
+        <div className="w-full max-w-sm">
+          <StatsScreen user={currentUser} lastDifficulty={difficulty} onNewGame={newGame} />
+        </div>
+      </main>
+    )
+  }
+
   const isCleared = phase === 'cleared'
 
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
       <div className="w-full max-w-sm flex flex-col gap-4">
-        {isCleared && <GameClearBanner onNewGame={newGame} />}
+        {isCleared && <GameClearBanner onShowStats={showStats} />}
         <SudokuBoard
           board={board}
           selectedCell={selectedCell}
           difficulty={difficulty}
           onCellClick={selectCell}
           isCleared={isCleared}
+          startedAt={startedAt}
+          onAbandon={abandonGame}
         />
         <NumPad onInput={inputNumber} disabled={isCleared} />
         <GameControls onErase={eraseCell} onHint={useHint} disabled={isCleared} />

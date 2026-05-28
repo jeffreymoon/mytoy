@@ -4,6 +4,8 @@ import { cn } from '@/lib/utils'
 import type { Cell, Difficulty } from '@/types/sudoku'
 import { SudokuCell } from './SudokuCell'
 import { ThemeToggle } from './ThemeToggle'
+import { GameTimer } from './GameTimer'
+import { Button } from '@/components/ui/button'
 
 interface SudokuBoardProps {
   board: Cell[][]
@@ -11,6 +13,8 @@ interface SudokuBoardProps {
   difficulty: Difficulty | null
   onCellClick: (r: number, c: number) => void
   isCleared?: boolean
+  startedAt?: number | null
+  onAbandon?: () => void
 }
 
 const DIFFICULTY_LABELS: Record<Difficulty, string> = {
@@ -25,6 +29,8 @@ export function SudokuBoard({
   difficulty,
   onCellClick,
   isCleared = false,
+  startedAt,
+  onAbandon,
 }: SudokuBoardProps) {
   return (
     <div className="flex flex-col items-center gap-3">
@@ -38,7 +44,17 @@ export function SudokuBoard({
             </span>
           )}
         </div>
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          {startedAt != null && (
+            <GameTimer startedAt={startedAt} stopped={isCleared} />
+          )}
+          {onAbandon && !isCleared && (
+            <Button variant="ghost" size="sm" onClick={onAbandon} className="h-7 px-2 text-xs">
+              새 게임
+            </Button>
+          )}
+          <ThemeToggle />
+        </div>
       </div>
 
       {/* Grid */}

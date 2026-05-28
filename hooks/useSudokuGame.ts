@@ -1,35 +1,78 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import type { GameState, Difficulty } from '@/types/sudoku'
+import { useState, useCallback, useRef, useEffect } from 'react'
+import type { GameState, Difficulty, User, GameSession } from '@/types/sudoku'
 import {
   generateBoard,
   maskByDifficulty,
   computeStatuses,
   isBoardCleared,
 } from '@/lib/sudoku/engine'
+import { upsertUser, addSession } from '@/services/storage'
 
 function initialState(): GameState {
   return {
-    phase: 'home',
+    phase: 'user-select',
     difficulty: null,
     board: [],
     solution: [],
     selectedCell: null,
+    currentUser: null,
+    startedAt: null,
+  }
+}
+
+function makeSession(
+  userId: string,
+  difficulty: Difficulty,
+  startedAt: number,
+  outcome: 'success' | 'failure'
+): GameSession {
+  const endTime = Date.now()
+  return {
+    id: crypto.randomUUID(),
+    userId,
+    difficulty,
+    startTime: startedAt,
+    endTime,
+    duration: Math.floor((endTime - startedAt) / 1000),
+    outcome,
   }
 }
 
 export function useSudokuGame() {
   const [state, setState] = useState<GameState>(initialState)
+  const pendingSessionRef = useRef<GameSession | null>(null)
 
-  const startGame = useCallback(() => {
-    setState(prev => ({ ...prev, phase: 'difficulty' }))
+  useEffect(() => {
+    if (pendingSessionRef.current) {
+      addSession(pendingSessionRef.current)
+      pendingSessionRef.current = null
+    }
+  }, [state.phase])
+
+  const selectUser = useCallback((user: User) => {
+    setState(prev => ({ ...prev, phase: 'difficulty', currentUser: user }))
+  }, [])
+
+  const createUser = useCallback((name: string) => {
+    const user: User = { id: crypto.randomUUID(), name: name.trim() }
+    upsertUser(user)
+    setState(prev => ({ ...prev, phase: 'difficulty', currentUser: user }))
   }, [])
 
   const selectDifficulty = useCallback((difficulty: Difficulty) => {
     const solution = generateBoard()
     const board = maskByDifficulty(solution, difficulty)
-    setState({ phase: 'playing', difficulty, board, solution, selectedCell: null })
+    setState(prev => ({
+      ...prev,
+      phase: 'playing',
+      difficulty,
+      board,
+      solution,
+      selectedCell: null,
+      startedAt: Date.now(),
+    }))
   }, [])
 
   const selectCell = useCallback((r: number, c: number) => {
@@ -51,6 +94,14 @@ export function useSudokuGame() {
       newBoard[r][c] = { value: n, status: 'user-valid' }
       const computed = computeStatuses(newBoard)
       const cleared = isBoardCleared(computed)
+      if (cleared && prev.currentUser && prev.startedAt) {
+        pendingSessionRef.current = makeSession(
+          prev.currentUser.id,
+          prev.difficulty!,
+          prev.startedAt,
+          'success'
+        )
+      }
       return { ...prev, board: computed, phase: cleared ? 'cleared' : 'playing' }
     })
   }, [])
@@ -80,6 +131,14 @@ export function useSudokuGame() {
       newBoard[r][c] = { value: prev.solution[r][c], status: 'hint' }
       const computed = computeStatuses(newBoard)
       const cleared = isBoardCleared(computed)
+      if (cleared && prev.currentUser && prev.startedAt) {
+        pendingSessionRef.current = makeSession(
+          prev.currentUser.id,
+          prev.difficulty!,
+          prev.startedAt,
+          'success'
+        )
+      }
       return {
         ...prev,
         board: computed,
@@ -89,9 +148,47 @@ export function useSudokuGame() {
     })
   }, [])
 
-  const newGame = useCallback(() => {
-    setState({ ...initialState(), phase: 'difficulty' })
+  const abandonGame = useCallback(() => {
+    setState(prev => {
+      if (prev.phase !== 'playing') return prev
+      if (prev.currentUser && prev.startedAt) {
+        pendingSessionRef.current = makeSession(
+          prev.currentUser.id,
+          prev.difficulty!,
+          prev.startedAt,
+          'failure'
+        )
+      }
+      return { ...prev, phase: 'difficulty', board: [], solution: [], selectedCell: null, startedAt: null }
+    })
   }, [])
 
-  return { state, startGame, selectDifficulty, selectCell, inputNumber, eraseCell, useHint, newGame }
+  const showStats = useCallback(() => {
+    setState(prev => ({ ...prev, phase: 'stats' }))
+  }, [])
+
+  const newGame = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      phase: 'difficulty',
+      board: [],
+      solution: [],
+      selectedCell: null,
+      startedAt: null,
+    }))
+  }, [])
+
+  return {
+    state,
+    selectUser,
+    createUser,
+    selectDifficulty,
+    selectCell,
+    inputNumber,
+    eraseCell,
+    useHint,
+    abandonGame,
+    showStats,
+    newGame,
+  }
 }
