@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wireframe: 스도쿠</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root {
+    --w-bg: #f5f5f5;
+    --w-border: #ccc;
+    --w-text: #555;
+    --w-muted: #aaa;
+    --w-fill: #eee;
+  }
+
+  * {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    color: var(--w-text);
+  }
+
+  body { background: var(--w-bg); }
+
+  nav { position: sticky; top: 0; z-index: 40; background: var(--w-bg); border-bottom: 1px solid var(--w-border); }
+  nav button { cursor: pointer; font-size: 13px; }
+  nav button:hover { background: var(--w-fill); border-radius: 4px; }
+  nav button.active { font-weight: bold; border-bottom: 2px solid var(--w-text); }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .vp-toggle button {
+    font-size: 12px; padding: 2px 8px;
+    border: 1px solid var(--w-border); cursor: pointer; background: white;
+  }
+  .vp-toggle button:first-child { border-radius: 4px 0 0 4px; }
+  .vp-toggle button:last-child { border-radius: 0 4px 4px 0; border-left: none; }
+  .vp-toggle button.active { background: var(--w-text); color: white; }
+
+  body.viewport-mobile .screen-content {
+    max-width: 375px !important;
+    margin: 24px auto !important;
+    border: 2px solid var(--w-border);
+    border-radius: 24px;
+    min-height: 667px;
+    background: white;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 24px 12px !important;
+  }
+
+  .screen-notes {
+    background: #fffde7;
+    border-left: 3px solid #ffd54f;
+    padding: 12px 16px;
+    margin-top: 24px;
+    font-size: 13px;
+    border-radius: 0 4px 4px 0;
+  }
+  .screen-notes summary { cursor: pointer; font-weight: bold; font-size: 12px; color: #b0a050; text-transform: uppercase; letter-spacing: 0.05em; }
+  .screen-notes p { margin: 6px 0 2px; color: #777; }
+  .screen-notes ul { margin: 4px 0 0 16px; padding: 0; color: #777; }
+  .screen-notes li { margin: 2px 0; }
+
+  /* Sudoku-specific w- prefixed classes */
+  .w-clue { font-weight: 700; background: var(--w-fill); }
+  .w-selected { background: var(--w-text) !important; }
+  .w-selected-text { color: var(--w-bg) !important; }
+  .w-valid { color: #3b82f6; }
+  .w-conflict { color: #ef4444; }
+  .w-hint { color: #3b82f6; text-decoration: underline; font-weight: 600; }
+
+  .w-sudoku-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    border-top: 2px solid var(--w-text);
+    border-left: 2px solid var(--w-text);
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .w-sudoku-cell {
+    border-right: 1px solid var(--w-border);
+    border-bottom: 1px solid var(--w-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    aspect-ratio: 1;
+    user-select: none;
+  }
+  .w-sudoku-cell.br { border-right: 2px solid var(--w-text); }
+  .w-sudoku-cell.bb { border-bottom: 2px solid var(--w-text); }
+
+  .w-numpad {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 3px;
+    max-width: 300px;
+    width: 100%;
+  }
+  .w-numpad-btn {
+    aspect-ratio: 1;
+    border: 1px solid var(--w-border);
+    background: var(--w-fill);
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .w-scenario-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .w-scenario-btn {
+    font-size: 10px;
+    padding: 2px 7px;
+    border: 1px solid var(--w-border);
+    border-radius: 10px;
+    background: var(--w-bg);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .w-scenario-btn.active {
+    background: var(--w-text);
+    color: var(--w-bg);
+    border-color: var(--w-text);
+  }
+
+  body.dark-mode {
+    --w-bg: #1e1e1e;
+    --w-border: #444;
+    --w-text: #d4d4d4;
+    --w-muted: #666;
+    --w-fill: #2d2d2d;
+  }
+  body.dark-mode .screen-content { background: #252525 !important; }
+  body.dark-mode .vp-toggle button { background: #333; }
+  body.dark-mode .vp-toggle button.active { background: var(--w-text); color: #111; }
+</style>
+</head>
+<body class="p-0 m-0 viewport-mobile">
+
+<nav class="flex items-center gap-2 px-4 py-2 overflow-x-auto">
+  <span class="text-xs shrink-0" style="color:var(--w-muted)">wireframe</span>
+  <button id="nav-0" onclick="show(0)" class="px-2 py-1 shrink-0">홈</button>
+  <button id="nav-1" onclick="show(1)" class="px-2 py-1 shrink-0">난이도 선택</button>
+  <button id="nav-2" onclick="show(2)" class="px-2 py-1 shrink-0">게임 진행</button>
+  <button id="nav-3" onclick="show(3)" class="px-2 py-1 shrink-0">게임 클리어</button>
+  <div class="vp-toggle flex ml-auto shrink-0">
+    <button id="vp-desktop" onclick="setViewport('desktop')">Desktop</button>
+    <button id="vp-mobile" onclick="setViewport('mobile')" class="active">Mobile</button>
+  </div>
+</nav>
+
+<!-- Screen 0: 홈 -->
+<div id="screen-0" class="screen" data-scenario="scenario-1">
+  <div class="screen-content @container max-w-6xl mx-auto p-6">
+
+    <div class="flex flex-col items-center justify-center gap-8" style="min-height:460px;">
+      <div class="text-center">
+        <h1 class="text-4xl font-bold tracking-widest mb-2">스도쿠</h1>
+        <p class="text-sm" style="color:var(--w-muted)">숫자 퍼즐 게임</p>
+      </div>
+      <button class="px-10 py-3 text-base font-bold border-2 rounded-lg" style="border-color:var(--w-text); background:var(--w-fill);">
+        게임 시작
+      </button>
+    </div>
+
+    <div class="screen-notes">
+      <details open>
+        <summary>Notes</summary>
+        <ul>
+          <li>트리거: 페이지 최초 로드 시</li>
+          <li>인터랙션: "게임 시작" 클릭 → 난이도 선택 화면</li>
+          <li>전환: → 난이도 선택</li>
+        </ul>
+      </details>
+    </div>
+
+  </div>
+</div>
+
+<!-- Screen 1: 난이도 선택 -->
+<div id="screen-1" class="screen" data-scenario="scenario-1">
+  <div class="screen-content @container max-w-6xl mx-auto p-6">
+
+    <h2 class="text-lg font-bold mb-6" style="color:var(--w-muted); border-bottom:1px solid var(--w-border); padding-bottom:8px;">
+      난이도 선택
+    </h2>
+
+    <div class="flex flex-col @md:flex-row gap-3">
+      <div class="flex-1 p-4 border-2 rounded-lg cursor-pointer" style="border-color:var(--w-border);">
+        <div class="font-bold text-xl mb-1">Easy</div>
+        <div class="text-sm mb-1">≈ 40칸 단서</div>
+        <div class="text-xs" style="color:var(--w-muted)">전체의 약 50%</div>
+      </div>
+      <div class="flex-1 p-4 border-2 rounded-lg cursor-pointer" style="border-color:var(--w-border);">
+        <div class="font-bold text-xl mb-1">Normal</div>
+        <div class="text-sm mb-1">≈ 32칸 단서</div>
+        <div class="text-xs" style="color:var(--w-muted)">전체의 약 40%</div>
+      </div>
+      <div class="flex-1 p-4 border-2 rounded-lg cursor-pointer" style="border-color:var(--w-border);">
+        <div class="font-bold text-xl mb-1">Hard</div>
+        <div class="text-sm mb-1">≈ 24칸 단서</div>
+        <div class="text-xs" style="color:var(--w-muted)">전체의 약 30%</div>
+      </div>
+    </div>
+
+    <div class="screen-notes">
+      <details open>
+        <summary>Notes</summary>
+        <ul>
+          <li>트리거: "게임 시작" 클릭 후 / "새 게임" 클릭 후</li>
+          <li>인터랙션: 카드 클릭 → 해당 난이도로 퍼즐 생성 → 게임 진행 화면</li>
+          <li>전환: → 게임 진행</li>
+        </ul>
+      </details>
+    </div>
+
+  </div>
+</div>
+
+<!-- Screen 2: 게임 진행 -->
+<div id="screen-2" class="screen" data-scenario="scenario-2">
+  <div class="screen-content @container max-w-6xl mx-auto p-6">
+
+    <!-- App bar -->
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-base">스도쿠</span>
+        <span class="text-xs px-2 py-0 border rounded" style="border-color:var(--w-border); color:var(--w-muted);">Easy</span>
+      </div>
+      <button id="btn-dark" onclick="toggleDark()" class="flex items-center gap-1 px-2 py-1 border rounded text-xs" style="border-color:var(--w-border);">
+        <i id="dark-icon" data-lucide="moon" style="width:14px;height:14px;"></i>
+      </button>
+    </div>
+
+    <!-- Scenario sub-nav -->
+    <div class="w-scenario-nav">
+      <button class="w-scenario-btn active" id="gs-2" onclick="setGameScenario(2)">시나2 기본</button>
+      <button class="w-scenario-btn" id="gs-3" onclick="setGameScenario(3)">시나3 셀선택</button>
+      <button class="w-scenario-btn" id="gs-4" onclick="setGameScenario(4)">시나4 파랑입력</button>
+      <button class="w-scenario-btn" id="gs-5" onclick="setGameScenario(5)">시나5 빨강충돌</button>
+      <button class="w-scenario-btn" id="gs-6" onclick="setGameScenario(6)">시나6 지우기후</button>
+      <button class="w-scenario-btn" id="gs-7" onclick="setGameScenario(7)">시나7 힌트</button>
+    </div>
+
+    <!-- Board -->
+    <div class="flex justify-center mb-3">
+      <div class="w-sudoku-grid" id="game-board"></div>
+    </div>
+
+    <!-- Number pad -->
+    <div class="flex justify-center mb-3">
+      <div class="w-numpad" id="numpad"></div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="flex justify-center gap-3 mb-3">
+      <button class="flex items-center gap-1 px-3 py-2 border rounded text-sm" style="border-color:var(--w-border);">
+        <i data-lucide="eraser" style="width:14px;height:14px;"></i>
+        지우기
+      </button>
+      <button class="flex items-center gap-1 px-3 py-2 border rounded text-sm" style="border-color:var(--w-border);">
+        <i data-lucide="lightbulb" style="width:14px;height:14px;"></i>
+        힌트
+      </button>
+    </div>
+
+    <!-- Legend -->
+    <div class="flex justify-center flex-wrap gap-3 text-xs mb-2" style="color:var(--w-muted);">
+      <span><b style="background:var(--w-fill); padding:0 4px;">단서</b> 굵음+회색</span>
+      <span class="w-valid"><b>유효입력</b> 파랑</span>
+      <span class="w-conflict"><b>충돌입력</b> 빨강</span>
+      <span class="w-hint"><b>힌트</b> 파랑+밑줄</span>
+    </div>
+
+    <div class="screen-notes">
+      <details open>
+        <summary>Notes</summary>
+        <ul>
+          <li>트리거: 난이도 선택 후 진입</li>
+          <li>인터랙션: 빈 셀 클릭 → 선택 강조 / 1~9 버튼·키보드 → 숫자 입력(파랑/빨강) / 지우기 → 선택 셀 초기화 / 힌트 → 정답 자동 입력(파랑+밑줄, 이후 수정 불가) / 달 아이콘 → 다크모드 전환</li>
+          <li>전환: 모든 셀 채움 + 규칙 위반 없음 → 게임 클리어</li>
+        </ul>
+      </details>
+    </div>
+
+  </div>
+</div>
+
+<!-- Screen 3: 게임 클리어 -->
+<div id="screen-3" class="screen" data-scenario="scenario-8 scenario-9">
+  <div class="screen-content @container max-w-6xl mx-auto p-6">
+
+    <!-- App bar -->
+    <div class="flex items-center justify-between mb-3">
+      <span class="font-bold text-base">스도쿠</span>
+      <button class="p-1 border rounded text-xs" style="border-color:var(--w-border); opacity:0.4;" disabled>
+        <i data-lucide="moon" style="width:14px;height:14px;"></i>
+      </button>
+    </div>
+
+    <!-- Clear banner -->
+    <div class="text-center py-4 mb-4 rounded-lg border-2" style="border-color:var(--w-text); background:var(--w-fill);">
+      <div class="flex justify-center mb-2">
+        <i data-lucide="circle-check" style="width:28px;height:28px;"></i>
+      </div>
+      <div class="text-xl font-bold mb-3">게임 클리어!</div>
+      <button onclick="show(1)" class="px-6 py-2 border-2 text-sm font-bold rounded" style="border-color:var(--w-text); background:var(--w-bg);">
+        새 게임
+      </button>
+    </div>
+
+    <!-- Completed board (locked) -->
+    <div class="flex justify-center mb-3" style="opacity:0.55;">
+      <div class="w-sudoku-grid" id="clear-board"></div>
+    </div>
+
+    <!-- Number pad (locked) -->
+    <div class="flex justify-center mb-3" style="opacity:0.3; pointer-events:none;">
+      <div class="w-numpad" id="numpad-clear"></div>
+    </div>
+
+    <!-- Action buttons (locked) -->
+    <div class="flex justify-center gap-3 mb-2" style="opacity:0.3; pointer-events:none;">
+      <button class="flex items-center gap-1 px-3 py-2 border rounded text-sm" style="border-color:var(--w-border);">
+        <i data-lucide="eraser" style="width:14px;height:14px;"></i>
+        지우기
+      </button>
+      <button class="flex items-center gap-1 px-3 py-2 border rounded text-sm" style="border-color:var(--w-border);">
+        <i data-lucide="lightbulb" style="width:14px;height:14px;"></i>
+        힌트
+      </button>
+    </div>
+
+    <div class="screen-notes">
+      <details open>
+        <summary>Notes</summary>
+        <ul>
+          <li>트리거: 모든 셀 채움 + 규칙 위반 없음 판정 직후 자동 전환</li>
+          <li>인터랙션: "새 게임" 클릭 → 난이도 선택 / 나머지 보드·버튼 잠금(클릭 무반응)</li>
+          <li>전환: "새 게임" 클릭 → 난이도 선택</li>
+        </ul>
+      </details>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var screenIds = [];
+
+const PUZZLE = [
+  [5,3,0, 0,7,0, 0,0,0],
+  [6,0,0, 1,9,5, 0,0,0],
+  [0,9,8, 0,0,0, 0,6,0],
+  [8,0,0, 0,6,0, 0,0,3],
+  [4,0,0, 8,0,3, 0,0,1],
+  [7,0,0, 0,2,0, 0,0,6],
+  [0,6,0, 0,0,0, 2,8,0],
+  [0,0,0, 4,1,9, 0,0,5],
+  [0,0,0, 0,8,0, 0,7,9]
+];
+
+const SOLUTION = [
+  [5,3,4, 6,7,8, 9,1,2],
+  [6,7,2, 1,9,5, 3,4,8],
+  [1,9,8, 3,4,2, 5,6,7],
+  [8,5,9, 7,6,1, 4,2,3],
+  [4,2,6, 8,5,3, 7,9,1],
+  [7,1,3, 9,2,4, 8,5,6],
+  [9,6,1, 5,3,7, 2,8,4],
+  [2,8,7, 4,1,9, 6,3,5],
+  [3,4,5, 2,8,6, 1,7,9]
+];
+
+// Overlay: cells that show specific states beyond clues
+const GAME_SCENARIOS = {
+  2: [],
+  3: [{row:4,col:4,type:'selected'}],
+  4: [{row:0,col:2,type:'valid',value:4}],
+  5: [{row:1,col:1,type:'conflict',value:6}],
+  6: [{row:0,col:2,type:'selected'}],
+  7: [{row:2,col:0,type:'hint',value:1}],
+};
+
+function renderBoard(el, overlays, completed) {
+  el.innerHTML = '';
+  var map = {};
+  (overlays || []).forEach(function(o){ map[o.row+','+o.col] = o; });
+
+  for (var r = 0; r < 9; r++) {
+    for (var c = 0; c < 9; c++) {
+      var clue = PUZZLE[r][c];
+      var isClue = clue > 0;
+      var cell = document.createElement('div');
+      cell.className = 'w-sudoku-cell';
+      if ((c === 2 || c === 5)) cell.classList.add('br');
+      if ((r === 2 || r === 5)) cell.classList.add('bb');
+
+      var key = r+','+c;
+      var ov = map[key];
+
+      if (completed) {
+        cell.textContent = SOLUTION[r][c];
+        if (isClue) cell.classList.add('w-clue');
+        else cell.classList.add('w-valid');
+      } else if (isClue) {
+        cell.textContent = clue;
+        cell.classList.add('w-clue');
+      } else if (ov) {
+        if (ov.type === 'selected') {
+          cell.classList.add('w-selected');
+          var inner = document.createElement('span');
+          inner.className = 'w-selected-text';
+          inner.textContent = '';
+          cell.appendChild(inner);
+        } else if (ov.type === 'valid') {
+          cell.textContent = ov.value;
+          cell.classList.add('w-valid');
+        } else if (ov.type === 'conflict') {
+          cell.textContent = ov.value;
+          cell.classList.add('w-conflict');
+        } else if (ov.type === 'hint') {
+          cell.textContent = ov.value;
+          cell.classList.add('w-hint');
+        }
+      }
+
+      el.appendChild(cell);
+    }
+  }
+}
+
+function renderNumpad(el) {
+  el.innerHTML = '';
+  for (var i = 1; i <= 9; i++) {
+    var btn = document.createElement('button');
+    btn.className = 'w-numpad-btn';
+    btn.textContent = i;
+    el.appendChild(btn);
+  }
+}
+
+function setGameScenario(n) {
+  document.querySelectorAll('.w-scenario-btn').forEach(function(b){ b.classList.remove('active'); });
+  var btn = document.getElementById('gs-'+n);
+  if (btn) btn.classList.add('active');
+  document.getElementById('screen-2').dataset.scenario = 'scenario-'+n;
+  renderBoard(document.getElementById('game-board'), GAME_SCENARIOS[n], false);
+  lucide.createIcons();
+}
+
+function toggleDark() {
+  document.body.classList.toggle('dark-mode');
+  var icon = document.getElementById('dark-icon');
+  if (icon) {
+    icon.setAttribute('data-lucide', document.body.classList.contains('dark-mode') ? 'sun' : 'moon');
+    lucide.createIcons();
+  }
+}
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('screen-'+id).classList.add('active');
+  document.querySelectorAll('nav button[id^="nav-"]').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('nav-'+id).classList.add('active');
+}
+
+function setViewport(mode) {
+  document.body.classList.remove('viewport-mobile','viewport-desktop');
+  document.body.classList.add('viewport-'+mode);
+  document.querySelectorAll('.vp-toggle button').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('vp-'+mode).classList.add('active');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('nav button[id^="nav-"]').forEach(function(b){
+    screenIds.push(parseInt(b.id.replace('nav-','')));
+  });
+  renderBoard(document.getElementById('game-board'), GAME_SCENARIOS[2], false);
+  renderNumpad(document.getElementById('numpad'));
+  renderBoard(document.getElementById('clear-board'), [], true);
+  renderNumpad(document.getElementById('numpad-clear'));
+  var first = document.querySelector('nav button[id^="nav-"]');
+  if (first) first.click();
+  lucide.createIcons();
+});
+</script>
+</body>
+</html>
