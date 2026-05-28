@@ -7,6 +7,7 @@ import { DifficultyScreen } from './DifficultyScreen'
 import { SudokuBoard } from './SudokuBoard'
 import { NumPad } from './NumPad'
 import { GameControls } from './GameControls'
+import { GameClearBanner } from './GameClearBanner'
 
 export function SudokuGame() {
   const { state, startGame, selectDifficulty, selectCell, inputNumber, eraseCell, useHint, newGame } =
@@ -54,6 +55,7 @@ export function SudokuGame() {
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
       <div className="w-full max-w-sm flex flex-col gap-4">
+        {isCleared && <GameClearBanner onNewGame={newGame} />}
         <SudokuBoard
           board={board}
           solution={solution}

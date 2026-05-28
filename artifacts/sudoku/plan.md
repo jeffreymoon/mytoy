@@ -222,7 +222,7 @@ None
 
 ---
 
-### Task 6: 게임 클리어 + 새 게임 (Scenarios 8, 9)
+### ✅ Task 6: 게임 클리어 + 새 게임 (Scenarios 8, 9)
 
 - **담당 시나리오**: Scenario 8 (full), Scenario 9 (full)
 - **크기**: M (3 파일)
