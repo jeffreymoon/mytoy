@@ -191,7 +191,7 @@ None
 
 ---
 
-### Task 5: 지우기 + 힌트 (Scenarios 6, 7)
+### ✅ Task 5: 지우기 + 힌트 (Scenarios 6, 7)
 
 - **담당 시나리오**: Scenario 6 (full), Scenario 7 (full)
 - **크기**: M (2 파일 + hook 수정)

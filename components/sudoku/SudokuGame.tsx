@@ -6,6 +6,7 @@ import { HomeScreen } from './HomeScreen'
 import { DifficultyScreen } from './DifficultyScreen'
 import { SudokuBoard } from './SudokuBoard'
 import { NumPad } from './NumPad'
+import { GameControls } from './GameControls'
 
 export function SudokuGame() {
   const { state, startGame, selectDifficulty, selectCell, inputNumber, eraseCell, useHint, newGame } =
@@ -62,6 +63,7 @@ export function SudokuGame() {
           isCleared={isCleared}
         />
         <NumPad onInput={inputNumber} disabled={isCleared} />
+        <GameControls onErase={eraseCell} onHint={useHint} disabled={isCleared} />
       </div>
     </main>
   )
