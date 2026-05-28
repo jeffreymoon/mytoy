@@ -130,7 +130,7 @@ None
 
 ---
 
-### Task 3: 셀 선택 (Scenario 3)
+### ✅ Task 3: 셀 선택 (Scenario 3)
 
 - **담당 시나리오**: Scenario 3 (full)
 - **크기**: S (2 파일)

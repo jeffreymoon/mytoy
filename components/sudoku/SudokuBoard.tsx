@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils'
 import type { Cell, Difficulty } from '@/types/sudoku'
+import { SudokuCell } from './SudokuCell'
 
 interface SudokuBoardProps {
   board: Cell[][]
@@ -9,17 +10,7 @@ interface SudokuBoardProps {
   selectedCell: [number, number] | null
   difficulty: Difficulty | null
   onCellClick: (r: number, c: number) => void
-  onKeyDown?: (e: KeyboardEvent) => void
   isCleared?: boolean
-}
-
-function cellStyle(cell: Cell, isSelected: boolean): string {
-  if (isSelected) return 'bg-foreground text-background'
-  if (cell.status === 'clue') return 'bg-muted font-bold'
-  if (cell.status === 'user-valid') return 'text-[var(--cell-valid)]'
-  if (cell.status === 'user-conflict') return 'text-[var(--cell-conflict)]'
-  if (cell.status === 'hint') return 'text-[var(--cell-hint)] underline font-semibold'
-  return ''
 }
 
 const DIFFICULTY_LABELS: Record<Difficulty, string> = {
@@ -30,10 +21,11 @@ const DIFFICULTY_LABELS: Record<Difficulty, string> = {
 
 export function SudokuBoard({
   board,
+  solution: _solution,
   selectedCell,
   difficulty,
   onCellClick,
-  isCleared,
+  isCleared = false,
 }: SudokuBoardProps) {
   return (
     <div className="flex flex-col items-center gap-3">
@@ -62,22 +54,16 @@ export function SudokuBoard({
               selectedCell !== null &&
               selectedCell[0] === r &&
               selectedCell[1] === c
-            const borderRight = c === 2 || c === 5 ? 'border-r-2 border-r-foreground' : 'border-r border-r-border'
-            const borderBottom = r === 2 || r === 5 ? 'border-b-2 border-b-foreground' : 'border-b border-b-border'
-
             return (
-              <div
+              <SudokuCell
                 key={`${r}-${c}`}
-                onClick={() => !isCleared && onCellClick(r, c)}
-                className={cn(
-                  'flex items-center justify-center aspect-square cursor-pointer select-none text-sm',
-                  borderRight,
-                  borderBottom,
-                  cellStyle(cell, isSelected)
-                )}
-              >
-                {cell.value ?? ''}
-              </div>
+                cell={cell}
+                row={r}
+                col={c}
+                isSelected={isSelected}
+                isCleared={isCleared}
+                onClick={onCellClick}
+              />
             )
           })
         )}
