@@ -98,23 +98,45 @@ describe('useSudokuGame', () => {
   })
 
   describe('cleared guard', () => {
-    it('inputNumber in cleared state → no change', () => {
+    function setupCleared() {
       const { result } = renderHook(() => useSudokuGame())
       act(() => result.current.startGame())
       act(() => result.current.selectDifficulty('easy'))
-      // Force cleared state
+      // Fill all empty cells with correct answers to trigger cleared phase
       act(() => {
-        ;(result.current as unknown as { setState: (fn: unknown) => void })
+        const { board, solution } = result.current.state
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            if (board[r][c].status === 'empty') {
+              result.current.selectCell(r, c)
+              result.current.inputNumber(solution[r][c])
+            }
+          }
+        }
       })
-      // Simulate cleared phase directly by checking guard
-      const board = result.current.state.board
-      // Find empty cell, select it, then manually set phase via newGame + re-enter
-      // Better: test through the hook's own API
-      // We skip direct state manipulation — the guard logic is tested via engine's isBoardCleared
-      // This test verifies selectedCell is null after newGame → difficulty → board reset
-      act(() => result.current.newGame())
-      expect(result.current.state.phase).toBe('difficulty')
-      expect(result.current.state.board).toHaveLength(0)
+      return result
+    }
+
+    it('inputNumber in cleared state → no change', () => {
+      const result = setupCleared()
+      expect(result.current.state.phase).toBe('cleared')
+      const snapshot = result.current.state.board
+      act(() => result.current.inputNumber(5))
+      expect(result.current.state.board).toBe(snapshot)
+    })
+
+    it('eraseCell in cleared state → no change', () => {
+      const result = setupCleared()
+      const snapshot = result.current.state.board
+      act(() => result.current.eraseCell())
+      expect(result.current.state.board).toBe(snapshot)
+    })
+
+    it('useHint in cleared state → no change', () => {
+      const result = setupCleared()
+      const snapshot = result.current.state.board
+      act(() => result.current.useHint())
+      expect(result.current.state.board).toBe(snapshot)
     })
 
     it('newGame resets board and goes to difficulty', () => {
@@ -148,7 +170,7 @@ describe('useSudokuGame', () => {
       expect(result.current.state.board[emptyR][emptyC].value).toBeNull()
     })
 
-    it('does not erase clue cells', () => {
+    it('eraseCell is a no-op when no cell is selected', () => {
       const { result } = renderHook(() => useSudokuGame())
       act(() => result.current.startGame())
       act(() => result.current.selectDifficulty('normal'))

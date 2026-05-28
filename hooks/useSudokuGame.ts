@@ -49,7 +49,7 @@ export function useSudokuGame() {
       if (cell.status === 'clue' || cell.status === 'hint') return prev
       const newBoard = prev.board.map(row => row.map(cell => ({ ...cell })))
       newBoard[r][c] = { value: n, status: 'user-valid' }
-      const computed = computeStatuses(newBoard, prev.solution)
+      const computed = computeStatuses(newBoard)
       const cleared = isBoardCleared(computed)
       return { ...prev, board: computed, phase: cleared ? 'cleared' : 'playing' }
     })
@@ -63,7 +63,7 @@ export function useSudokuGame() {
       if (cell.status === 'clue' || cell.status === 'hint') return prev
       const newBoard = prev.board.map(row => row.map(cell => ({ ...cell })))
       newBoard[r][c] = { value: null, status: 'empty' }
-      const computed = computeStatuses(newBoard, prev.solution)
+      const computed = computeStatuses(newBoard)
       return { ...prev, board: computed }
     })
   }, [])
@@ -78,9 +78,14 @@ export function useSudokuGame() {
       }
       const newBoard = prev.board.map(row => row.map(cell => ({ ...cell })))
       newBoard[r][c] = { value: prev.solution[r][c], status: 'hint' }
-      const computed = computeStatuses(newBoard, prev.solution)
+      const computed = computeStatuses(newBoard)
       const cleared = isBoardCleared(computed)
-      return { ...prev, board: computed, phase: cleared ? 'cleared' : 'playing' }
+      return {
+        ...prev,
+        board: computed,
+        phase: cleared ? 'cleared' : 'playing',
+        selectedCell: null,
+      }
     })
   }, [])
 

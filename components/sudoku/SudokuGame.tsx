@@ -15,7 +15,7 @@ export function SudokuGame() {
   const { phase, board, solution, selectedCell, difficulty } = state
 
   useEffect(() => {
-    if (phase !== 'playing' && phase !== 'cleared') return
+    if (phase !== 'playing') return
     function handleKeyDown(e: KeyboardEvent) {
       const n = parseInt(e.key)
       if (n >= 1 && n <= 9) {
@@ -58,7 +58,6 @@ export function SudokuGame() {
         {isCleared && <GameClearBanner onNewGame={newGame} />}
         <SudokuBoard
           board={board}
-          solution={solution}
           selectedCell={selectedCell}
           difficulty={difficulty}
           onCellClick={selectCell}

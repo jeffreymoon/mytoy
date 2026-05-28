@@ -35,18 +35,23 @@ export function SudokuCell({ cell, row, col, isSelected, isCleared, onClick }: S
     colorClass = 'text-[var(--cell-hint)] underline font-semibold'
   }
 
+  const isInteractive = !isCleared && cell.status !== 'clue' && cell.status !== 'hint'
+
   function handleClick() {
-    if (!isCleared && cell.status !== 'clue') {
-      onClick(row, col)
-    }
+    if (isInteractive) onClick(row, col)
   }
 
   return (
     <div
+      role={isInteractive ? 'button' : undefined}
+      tabIndex={isInteractive ? 0 : -1}
       onClick={handleClick}
+      onKeyDown={e => {
+        if (isInteractive && (e.key === 'Enter' || e.key === ' ')) handleClick()
+      }}
       className={cn(
         'flex items-center justify-center aspect-square select-none text-sm',
-        cell.status !== 'clue' && !isCleared ? 'cursor-pointer' : 'cursor-default',
+        isInteractive ? 'cursor-pointer' : 'cursor-default',
         borderRight,
         borderBottom,
         colorClass

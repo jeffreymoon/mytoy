@@ -86,7 +86,7 @@ function hasConflict(board: Cell[][], r: number, c: number, value: number): bool
   return false
 }
 
-export function computeStatuses(board: Cell[][], _solution: number[][]): Cell[][] {
+export function computeStatuses(board: Cell[][]): Cell[][] {
   return board.map((row, r) =>
     row.map((cell, c) => {
       if (cell.status === 'clue' || cell.status === 'empty' || cell.status === 'hint') {

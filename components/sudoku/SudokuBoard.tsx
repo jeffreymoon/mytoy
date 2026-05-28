@@ -7,7 +7,6 @@ import { ThemeToggle } from './ThemeToggle'
 
 interface SudokuBoardProps {
   board: Cell[][]
-  solution: number[][]
   selectedCell: [number, number] | null
   difficulty: Difficulty | null
   onCellClick: (r: number, c: number) => void
@@ -22,7 +21,6 @@ const DIFFICULTY_LABELS: Record<Difficulty, string> = {
 
 export function SudokuBoard({
   board,
-  solution: _solution,
   selectedCell,
   difficulty,
   onCellClick,

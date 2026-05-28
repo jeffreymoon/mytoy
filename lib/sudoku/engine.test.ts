@@ -101,7 +101,7 @@ describe('computeStatuses', () => {
   it('clue and empty cells pass through unchanged', () => {
     const solution = generateBoard()
     const board = makeBoard(solution)
-    const result = computeStatuses(board, solution)
+    const result = computeStatuses(board)
     result.forEach((row, r) =>
       row.forEach((cell, c) => {
         expect(cell.status).toBe('clue')
@@ -115,7 +115,7 @@ describe('computeStatuses', () => {
     const board = emptyBoard()
     // Place the correct value for (0,0) with user-valid status
     board[0][0] = { value: solution[0][0], status: 'user-valid' }
-    const result = computeStatuses(board, solution)
+    const result = computeStatuses(board)
     expect(result[0][0].status).toBe('user-valid')
   })
 
@@ -142,7 +142,7 @@ describe('computeStatuses', () => {
     const val = solution[0][0]
     board[0][0] = { value: val, status: 'user-valid' }
     board[1][0] = { value: val, status: 'user-valid' }
-    const result = computeStatuses(board, solution)
+    const result = computeStatuses(board)
     expect(result[0][0].status).toBe('user-conflict')
     expect(result[1][0].status).toBe('user-conflict')
   })
@@ -153,7 +153,7 @@ describe('computeStatuses', () => {
     const val = solution[0][0]
     board[0][0] = { value: val, status: 'user-valid' }
     board[1][1] = { value: val, status: 'user-valid' }
-    const result = computeStatuses(board, solution)
+    const result = computeStatuses(board)
     expect(result[0][0].status).toBe('user-conflict')
     expect(result[1][1].status).toBe('user-conflict')
   })
@@ -162,7 +162,7 @@ describe('computeStatuses', () => {
     const solution = generateBoard()
     const board = emptyBoard()
     board[0][0] = { value: solution[0][0], status: 'hint' }
-    const result = computeStatuses(board, solution)
+    const result = computeStatuses(board)
     expect(result[0][0].status).toBe('hint')
   })
 })
