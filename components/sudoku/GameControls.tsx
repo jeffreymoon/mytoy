@@ -17,10 +17,12 @@ export function GameControls({ onErase, onHint, disabled, className }: GameContr
       <Button variant="outline" size="sm" onClick={onErase} disabled={disabled}>
         <Eraser data-icon="inline-start" />
         지우기
+        <kbd className="ml-1 text-[10px] opacity-40 font-mono">⌫</kbd>
       </Button>
       <Button variant="outline" size="sm" onClick={onHint} disabled={disabled}>
         <Lightbulb data-icon="inline-start" />
         힌트
+        <kbd className="ml-1 text-[10px] opacity-40 font-mono">H</kbd>
       </Button>
     </div>
   )

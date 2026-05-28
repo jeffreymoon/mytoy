@@ -36,6 +36,10 @@ export function SudokuGame() {
       }
       if (e.key === 'Backspace' || e.key === 'Delete') {
         eraseCell()
+        return
+      }
+      if (e.key === 'h' || e.key === 'H') {
+        useHint()
       }
     }
     window.addEventListener('keydown', handleKeyDown)
