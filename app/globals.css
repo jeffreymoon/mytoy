@@ -122,12 +122,16 @@
   --cell-valid: oklch(0.546 0.222 264);
   --cell-conflict: oklch(0.577 0.245 27.325);
   --cell-hint: oklch(0.546 0.222 264);
+  --cell-highlight-line: oklch(0.94 0.018 250);
+  --cell-highlight-same: oklch(0.86 0.055 250);
 }
 
 .dark {
   --cell-valid: oklch(0.7 0.18 264);
   --cell-conflict: oklch(0.704 0.191 22.216);
   --cell-hint: oklch(0.7 0.18 264);
+  --cell-highlight-line: oklch(0.22 0.025 264);
+  --cell-highlight-same: oklch(0.3 0.07 264);
 }
 
 @layer base {

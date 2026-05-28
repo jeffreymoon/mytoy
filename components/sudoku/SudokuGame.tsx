@@ -76,19 +76,21 @@ export function SudokuGame() {
 
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-sm flex flex-col gap-4">
+      <div className="w-full max-w-sm flex flex-col items-center gap-4">
         {isCleared && <GameClearBanner onShowStats={showStats} />}
-        <SudokuBoard
-          board={board}
-          selectedCell={selectedCell}
-          difficulty={difficulty}
-          onCellClick={selectCell}
-          isCleared={isCleared}
-          startedAt={startedAt}
-          onAbandon={abandonGame}
-        />
-        <NumPad onInput={inputNumber} disabled={isCleared} />
-        <GameControls onErase={eraseCell} onHint={useHint} disabled={isCleared} />
+        <div className="w-full max-w-xs flex flex-col gap-4">
+          <SudokuBoard
+            board={board}
+            selectedCell={selectedCell}
+            difficulty={difficulty}
+            onCellClick={selectCell}
+            isCleared={isCleared}
+            startedAt={startedAt}
+            onAbandon={abandonGame}
+          />
+          <NumPad onInput={inputNumber} disabled={isCleared} />
+          <GameControls onErase={eraseCell} onHint={useHint} disabled={isCleared} />
+        </div>
       </div>
     </main>
   )

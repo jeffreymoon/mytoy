@@ -2,16 +2,18 @@
 
 import { Eraser, Lightbulb } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface GameControlsProps {
   onErase: () => void
   onHint: () => void
   disabled?: boolean
+  className?: string
 }
 
-export function GameControls({ onErase, onHint, disabled }: GameControlsProps) {
+export function GameControls({ onErase, onHint, disabled, className }: GameControlsProps) {
   return (
-    <div className="flex justify-center gap-3">
+    <div className={cn('flex justify-center gap-1', className)}>
       <Button variant="outline" size="sm" onClick={onErase} disabled={disabled}>
         <Eraser data-icon="inline-start" />
         지우기

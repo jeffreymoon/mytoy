@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { getUserSessions } from '@/services/storage'
 import { mean } from '@/lib/sudoku/stats'
-import { NormalDistChart } from './NormalDistChart'
+import { BarChart } from './BarChart'
 import { formatDuration } from '@/lib/sudoku/stats'
 import type { Difficulty, User } from '@/types/sudoku'
 
@@ -48,7 +48,7 @@ function DifficultyStats({ userId, difficulty }: { userId: string; difficulty: D
 
       <div>
         <p className="text-xs text-muted-foreground mb-2 text-center">게임 시간 분포</p>
-        <NormalDistChart durations={durations} />
+        <BarChart durations={durations} />
       </div>
     </div>
   )

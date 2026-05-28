@@ -65,13 +65,26 @@ export function SudokuBoard({
         )}
         style={{ aspectRatio: '1' }}
       >
-        {board.map((row, r) =>
-          row.map((cell, c) => {
+        {board.map((row, r) => {
+          const selectedValue =
+            selectedCell !== null ? board[selectedCell[0]][selectedCell[1]].value : null
+          return row.map((cell, c) => {
             const isSelected =
               !isCleared &&
               selectedCell !== null &&
               selectedCell[0] === r &&
               selectedCell[1] === c
+            const isInLine =
+              !isCleared &&
+              !isSelected &&
+              selectedCell !== null &&
+              (selectedCell[0] === r || selectedCell[1] === c)
+            const isSameNumber =
+              !isCleared &&
+              !isSelected &&
+              selectedValue !== null &&
+              cell.value !== null &&
+              cell.value === selectedValue
             return (
               <SudokuCell
                 key={`${r}-${c}`}
@@ -79,12 +92,14 @@ export function SudokuBoard({
                 row={r}
                 col={c}
                 isSelected={isSelected}
+                isInLine={isInLine}
+                isSameNumber={isSameNumber}
                 isCleared={isCleared}
                 onClick={onCellClick}
               />
             )
           })
-        )}
+        })}
       </div>
 
       {/* Legend */}

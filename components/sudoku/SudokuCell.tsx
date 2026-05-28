@@ -8,11 +8,13 @@ interface SudokuCellProps {
   row: number
   col: number
   isSelected: boolean
+  isInLine: boolean
+  isSameNumber: boolean
   isCleared: boolean
   onClick: (r: number, c: number) => void
 }
 
-export function SudokuCell({ cell, row, col, isSelected, isCleared, onClick }: SudokuCellProps) {
+export function SudokuCell({ cell, row, col, isSelected, isInLine, isSameNumber, isCleared, onClick }: SudokuCellProps) {
   const borderRight =
     col === 2 || col === 5
       ? 'border-r-2 border-r-foreground'
@@ -22,17 +24,28 @@ export function SudokuCell({ cell, row, col, isSelected, isCleared, onClick }: S
       ? 'border-b-2 border-b-foreground'
       : 'border-b border-b-border'
 
-  let colorClass = ''
+  let bgClass = ''
   if (isSelected) {
-    colorClass = 'bg-foreground text-background'
+    bgClass = 'bg-foreground'
+  } else if (isSameNumber) {
+    bgClass = 'bg-[var(--cell-highlight-same)]'
+  } else if (isInLine) {
+    bgClass = 'bg-[var(--cell-highlight-line)]'
   } else if (cell.status === 'clue') {
-    colorClass = 'bg-muted font-bold'
+    bgClass = 'bg-muted'
+  }
+
+  let textClass = ''
+  if (isSelected) {
+    textClass = 'text-background'
+  } else if (cell.status === 'clue') {
+    textClass = 'font-bold'
   } else if (cell.status === 'user-valid') {
-    colorClass = 'text-[var(--cell-valid)]'
+    textClass = 'text-[var(--cell-valid)]'
   } else if (cell.status === 'user-conflict') {
-    colorClass = 'text-[var(--cell-conflict)]'
+    textClass = 'text-[var(--cell-conflict)]'
   } else if (cell.status === 'hint') {
-    colorClass = 'text-[var(--cell-hint)] underline font-semibold'
+    textClass = 'text-[var(--cell-hint)] underline font-semibold'
   }
 
   const isInteractive = !isCleared && cell.status !== 'clue' && cell.status !== 'hint'
@@ -54,7 +67,8 @@ export function SudokuCell({ cell, row, col, isSelected, isCleared, onClick }: S
         isInteractive ? 'cursor-pointer' : 'cursor-default',
         borderRight,
         borderBottom,
-        colorClass
+        bgClass,
+        textClass
       )}
     >
       {cell.value ?? ''}
