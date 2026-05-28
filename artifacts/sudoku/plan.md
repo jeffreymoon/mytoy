@@ -153,7 +153,7 @@ None
 
 ---
 
-### Task 4: 숫자 입력 + 색상 피드백 + 불변 규칙 (Scenarios 4, 5)
+### ✅ Task 4: 숫자 입력 + 색상 피드백 + 불변 규칙 (Scenarios 4, 5)
 
 - **담당 시나리오**: Scenario 4 (full), Scenario 5 (full)
 - **크기**: M (2 파일 + hook 수정)
