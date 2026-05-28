@@ -117,6 +117,19 @@
   --sidebar-ring: oklch(0.58 0.031 107.3);
 }
 
+/* Sudoku cell color tokens */
+:root {
+  --cell-valid: oklch(0.546 0.222 264);
+  --cell-conflict: oklch(0.577 0.245 27.325);
+  --cell-hint: oklch(0.546 0.222 264);
+}
+
+.dark {
+  --cell-valid: oklch(0.7 0.18 264);
+  --cell-conflict: oklch(0.704 0.191 22.216);
+  --cell-hint: oklch(0.7 0.18 264);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

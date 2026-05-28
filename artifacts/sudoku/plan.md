@@ -92,7 +92,7 @@ None
 
 ---
 
-### Task 2: 홈 → 난이도 선택 → 퍼즐 화면 진입 (Scenarios 1, 2)
+### ✅ Task 2: 홈 → 난이도 선택 → 퍼즐 화면 진입 (Scenarios 1, 2)
 
 - **담당 시나리오**: Scenario 1 (full), Scenario 2 (full)
 - **크기**: M (5 파일 + globals.css)
