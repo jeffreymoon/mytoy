@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { getUsers } from '@/services/storage'
@@ -12,9 +12,15 @@ interface UserSelectScreenProps {
 }
 
 export function UserSelectScreen({ onSelectUser, onCreateUser }: UserSelectScreenProps) {
-  const users = getUsers()
-  const [creating, setCreating] = useState(users.length === 0)
+  const [users, setUsers] = useState<User[]>([])
+  const [creating, setCreating] = useState(true)
   const [name, setName] = useState('')
+
+  useEffect(() => {
+    const stored = getUsers()
+    setUsers(stored)
+    setCreating(stored.length === 0)
+  }, [])
 
   const handleCreate = () => {
     const trimmed = name.trim()
