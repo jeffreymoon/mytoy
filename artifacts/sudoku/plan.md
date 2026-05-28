@@ -252,7 +252,7 @@ None
 
 ---
 
-### Task 7: 다크모드 토글 (Scenario 10)
+### ✅ Task 7: 다크모드 토글 (Scenario 10)
 
 - **담당 시나리오**: Scenario 10 (full)
 - **크기**: S (1 파일)

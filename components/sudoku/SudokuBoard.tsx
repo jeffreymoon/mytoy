@@ -3,6 +3,7 @@
 import { cn } from '@/lib/utils'
 import type { Cell, Difficulty } from '@/types/sudoku'
 import { SudokuCell } from './SudokuCell'
+import { ThemeToggle } from './ThemeToggle'
 
 interface SudokuBoardProps {
   board: Cell[][]
@@ -30,13 +31,16 @@ export function SudokuBoard({
   return (
     <div className="flex flex-col items-center gap-3">
       {/* App bar */}
-      <div className="flex items-center gap-2 w-full max-w-xs justify-start">
-        <span className="font-bold text-base">스도쿠</span>
-        {difficulty && (
-          <span className="text-xs px-2 py-0.5 border border-border rounded text-muted-foreground">
-            {DIFFICULTY_LABELS[difficulty]}
-          </span>
-        )}
+      <div className="flex items-center justify-between w-full max-w-xs">
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-base">스도쿠</span>
+          {difficulty && (
+            <span className="text-xs px-2 py-0.5 border border-border rounded text-muted-foreground">
+              {DIFFICULTY_LABELS[difficulty]}
+            </span>
+          )}
+        </div>
+        <ThemeToggle />
       </div>
 
       {/* Grid */}
